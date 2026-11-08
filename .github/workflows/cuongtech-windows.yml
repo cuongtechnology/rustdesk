@@ -29,7 +29,7 @@ env:
   FLUTTER_WINDOWS_ARM_VERSION: "3.44.9"
   # for arm64 linux because official Dart SDK does not work
   FLUTTER_ELINUX_VERSION: "3.16.9"
-  TAG_NAME: "cuongtech-1.5.1"
+  TAG_NAME: "cuongtech-1.5.1-r2"
   VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
   # vcpkg version: 2026.07.29
   # If we change the `VCPKG COMMIT_ID`, please remember:
@@ -52,6 +52,7 @@ env:
   # CuongTech self-hosted server baked into the client
   CT_HOST: "rustdesk.cuongtech.vn"
   CT_KEY: "QxiLY6+wU8LFJh6VN+FWiAoHhGUz1pUmsr673225fYA="
+  CT_API: "https://rustdesk.cuongtech.vn"
 
 jobs:
   generate-bridge:
@@ -100,7 +101,7 @@ jobs:
         shell: python
         run: |
           import os, re, pathlib
-          host, key = os.environ["CT_HOST"], os.environ["CT_KEY"]
+          host, key, api = os.environ["CT_HOST"], os.environ["CT_KEY"], os.environ["CT_API"]
           p = pathlib.Path("libs/hbb_common/src/config.rs")
           s = p.read_text(encoding="utf-8")
           subs = [
@@ -112,7 +113,8 @@ jobs:
              'pub static ref DEFAULT_SETTINGS: RwLock<HashMap<String, String>> = RwLock::new(HashMap::from(['
              f'("custom-rendezvous-server".to_owned(), "{host}".to_owned()), '
              f'("relay-server".to_owned(), "{host}".to_owned()), '
-             f'("key".to_owned(), "{key}".to_owned())]));'),
+             f'("key".to_owned(), "{key}".to_owned()), '
+             f'("api-server".to_owned(), "{api}".to_owned())]));'),
           ]
           for pat, rep in subs:
             s, n = re.subn(pat, lambda m: rep, s)
